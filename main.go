@@ -8,10 +8,15 @@ import (
 
 func main() {
 	var wg sync.WaitGroup
-	wg.Add(1)
+	wg.Add(2)
 
 	go func() {
 		service.NewProductService().PushProductToElasticsearch()
+		wg.Done()
+	}()
+
+	go func() {
+		service.NewProductService().UpdateProductInElasticsearch()
 		wg.Done()
 	}()
 	wg.Wait()

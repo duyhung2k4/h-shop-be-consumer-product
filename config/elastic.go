@@ -2,7 +2,6 @@ package config
 
 import (
 	"app/model"
-	"log"
 	"os"
 
 	"github.com/elastic/go-elasticsearch/v8"
@@ -16,7 +15,7 @@ func connectElastic() error {
 	}
 
 	var errEs error
-	es, errEs = elasticsearch.NewClient(elasticsearch.Config{
+	elasticClient, errEs = elasticsearch.NewTypedClient(elasticsearch.Config{
 		Addresses: []string{urlElastic},
 		Username:  "elastic",
 		Password:  "oouLuchH8ymSYzie_+Fs",
@@ -27,12 +26,11 @@ func connectElastic() error {
 		return errEs
 	}
 
-	initIndex(es)
+	initIndex(elasticClient)
 
-	log.Println("Elastic done")
 	return nil
 }
 
-func initIndex(es *elasticsearch.Client) {
-	es.Indices.Create(string(model.PRODUCT_INDEX))
+func initIndex(elasticClient *elasticsearch.TypedClient) {
+	elasticClient.Indices.Create(string(model.PRODUCT_INDEX))
 }

@@ -3,7 +3,8 @@ package model
 type QUEUE string
 
 const (
-	PRODUCT_TO_ELASTIC QUEUE = "product_to_elastic"
+	PRODUCT_TO_ELASTIC        QUEUE = "product_to_elastic"
+	UPDATE_PRODUCT_TO_ELASTIC QUEUE = "update_product_to_elastic"
 )
 
 type INDEX_ELASTIC string

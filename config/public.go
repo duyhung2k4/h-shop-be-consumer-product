@@ -32,6 +32,6 @@ func GetRabbitConnection() *amqp091.Connection {
 	return rabbitConnection
 }
 
-func GetEs() *elasticsearch.Client {
-	return es
+func GetElasticClient() *elasticsearch.TypedClient {
+	return elasticClient
 }

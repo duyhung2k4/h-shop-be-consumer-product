@@ -34,5 +34,5 @@ var (
 
 	clientProduct    *grpc.ClientConn
 	rabbitConnection *amqp091.Connection
-	es               *elasticsearch.Client
+	elasticClient    *elasticsearch.TypedClient
 )
