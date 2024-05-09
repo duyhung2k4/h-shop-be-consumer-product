@@ -8,7 +8,7 @@ import (
 
 func main() {
 	var wg sync.WaitGroup
-	wg.Add(2)
+	wg.Add(3)
 
 	go func() {
 		service.NewProductService().PushProductToElasticsearch()
@@ -17,6 +17,11 @@ func main() {
 
 	go func() {
 		service.NewProductService().UpdateProductInElasticsearch()
+		wg.Done()
+	}()
+
+	go func() {
+		service.NewProductService().DeleteProductInElasticsearch()
 		wg.Done()
 	}()
 	wg.Wait()

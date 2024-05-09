@@ -22,6 +22,7 @@ type productService struct {
 type ProductService interface {
 	PushProductToElasticsearch() error
 	UpdateProductInElasticsearch() error
+	DeleteProductInElasticsearch() error
 }
 
 func (s *productService) PushProductToElasticsearch() error {
@@ -155,6 +156,63 @@ func (s *productService) UpdateProductInElasticsearch() error {
 			_, err := s.elasticClient.
 				Update(string(model.PRODUCT_INDEX), product["_id"].(string)).
 				Request(&request).
+				Do(context.Background())
+
+			if err != nil {
+				log.Println(err)
+			}
+
+			wg.Done()
+		}(msg.Body)
+	}
+	return nil
+}
+
+func (s *productService) DeleteProductInElasticsearch() error {
+	ch, errCh := s.rabbitConnection.Channel()
+
+	if errCh != nil {
+		return errCh
+	}
+
+	q, errQ := ch.QueueDeclare(
+		string(model.DELETE_PRODUCT_TO_ELASTIC), // name
+		true,                                    // durable
+		false,                                   // delete when unused
+		false,                                   // exclusive
+		false,                                   // no-wait
+		nil,                                     // arguments
+	)
+
+	if errQ != nil {
+		return errQ
+	}
+
+	msgs, errMsgs := ch.Consume(
+		q.Name, // queue
+		"",     // consumer
+		true,   // auto-ack
+		false,  // exclusive
+		false,  // no-local
+		false,  // no-wait
+		nil,    // args
+	)
+
+	if errMsgs != nil {
+		return errMsgs
+	}
+
+	var wg sync.WaitGroup
+	for msg := range msgs {
+		wg.Add(1)
+		go func(data []byte) {
+			var product map[string]interface{}
+			if err := json.Unmarshal(data, &product); err != nil {
+				wg.Done()
+			}
+
+			_, err := s.elasticClient.
+				Delete(string(model.PRODUCT_INDEX), product["productId"].(string)).
 				Do(context.Background())
 
 			if err != nil {
