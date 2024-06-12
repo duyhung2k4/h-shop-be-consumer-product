@@ -7,7 +7,7 @@ import (
 )
 
 func connectElastic() error {
-	cert, errCert := os.ReadFile("cert/http_ca.neu.crt")
+	cert, errCert := os.ReadFile("cert/http_ca.crt")
 
 	if errCert != nil {
 		return errCert
