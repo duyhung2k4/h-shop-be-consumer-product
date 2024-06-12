@@ -12,4 +12,5 @@ func init() {
 	connectRedis()
 	connectRabbitMQ()
 	connectElastic()
+	connectGPRCServerWarehouse()
 }

@@ -18,16 +18,20 @@ const (
 	URL_REDIS   = "URL_REDIS"
 	HOST        = "HOST"
 
-	URL_RABBIT_MQ = "URL_RABBIT_MQ"
-	URL_ELASTIC   = "URL_ELASTIC"
+	URL_RABBIT_MQ           = "URL_RABBIT_MQ"
+	URL_ELASTIC             = "URL_ELASTIC"
+	USER_ELASTIC_SEARCH     = "USER_ELASTIC_SEARCH"
+	PASSWORD_ELASTIC_SEARCH = "PASSWORD_ELASTIC_SEARCH"
 )
 
 var (
-	appPort     string
-	urlRedis    string
-	host        string
-	urlRabbitMq string
-	urlElastic  string
+	appPort               string
+	urlRedis              string
+	host                  string
+	urlRabbitMq           string
+	urlElastic            string
+	userElasticSearch     string
+	passwordElasticSearch string
 
 	rdb *redis.Client
 	jwt *jwtauth.JWTAuth
@@ -35,4 +39,6 @@ var (
 	clientProduct    *grpc.ClientConn
 	rabbitConnection *amqp091.Connection
 	elasticClient    *elasticsearch.TypedClient
+
+	clientWarehouse *grpc.ClientConn
 )

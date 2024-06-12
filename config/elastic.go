@@ -7,7 +7,7 @@ import (
 )
 
 func connectElastic() error {
-	cert, errCert := os.ReadFile("cert/http_ca.crt")
+	cert, errCert := os.ReadFile("cert/http_ca.neu.crt")
 
 	if errCert != nil {
 		return errCert
@@ -16,8 +16,8 @@ func connectElastic() error {
 	var errEs error
 	elasticClient, errEs = elasticsearch.NewTypedClient(elasticsearch.Config{
 		Addresses: []string{urlElastic},
-		Username:  "elastic",
-		Password:  "Sj-gYGQa**Bq-RBtnGav",
+		Username:  userElasticSearch,
+		Password:  passwordElasticSearch,
 		CACert:    cert,
 	})
 

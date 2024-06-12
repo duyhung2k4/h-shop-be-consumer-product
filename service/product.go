@@ -2,6 +2,7 @@ package service
 
 import (
 	"app/config"
+	"app/grpc/proto"
 	"app/model"
 	"context"
 	"encoding/json"
@@ -15,14 +16,18 @@ import (
 )
 
 type productService struct {
-	rabbitConnection *amqp091.Connection
-	elasticClient    *elasticsearch.TypedClient
+	rabbitConnection           *amqp091.Connection
+	elasticClient              *elasticsearch.TypedClient
+	grpcWarehouseService       proto.WarehouseServiceClient
+	grpcTypeInWarehouseService proto.TypeInWarehouseServiceClient
 }
 
 type ProductService interface {
 	PushProductToElasticsearch() error
 	UpdateProductInElasticsearch() error
 	DeleteProductInElasticsearch() error
+
+	UpCountWarehouse() error
 }
 
 func (s *productService) PushProductToElasticsearch() error {
@@ -159,7 +164,15 @@ func (s *productService) UpdateProductInElasticsearch() error {
 				Do(context.Background())
 
 			if err != nil {
-				log.Println(err)
+				log.Println("error update: ", err)
+				_, errCreate := s.elasticClient.
+					Create(string(model.PRODUCT_INDEX), product["_id"].(string)).
+					Request(dataConvert).
+					Do(context.Background())
+
+				if errCreate != nil {
+					log.Println("error create: ", errCreate)
+				}
 			}
 
 			wg.Done()
@@ -225,9 +238,72 @@ func (s *productService) DeleteProductInElasticsearch() error {
 	return nil
 }
 
+func (s *productService) UpCountWarehouse() error {
+	ch, errCh := s.rabbitConnection.Channel()
+
+	if errCh != nil {
+		return errCh
+	}
+
+	q, errQ := ch.QueueDeclare(
+		string(model.UP_COUNT_WAREHOUSE), // name
+		true,                             // durable
+		false,                            // delete when unused
+		false,                            // exclusive
+		false,                            // no-wait
+		nil,                              // arguments
+	)
+
+	if errQ != nil {
+		return errQ
+	}
+
+	msgs, errMsgs := ch.Consume(
+		q.Name, // queue
+		"",     // consumer
+		true,   // auto-ack
+		false,  // exclusive
+		false,  // no-local
+		false,  // no-wait
+		nil,    // args
+	)
+
+	if errMsgs != nil {
+		return errMsgs
+	}
+
+	var wg sync.WaitGroup
+	for msg := range msgs {
+		wg.Add(1)
+		go func(data []byte) {
+			var checkCountPayload []model.CheckcountPayload
+			if err := json.Unmarshal(data, &checkCountPayload); err != nil {
+				wg.Done()
+			}
+
+			for _, item := range checkCountPayload {
+				if item.TypeInWarehouseId != nil {
+					s.grpcTypeInWarehouseService.UpCount(context.Background(), &proto.UpCountTypeInWarehouseReq{
+						Id:     uint64(*item.TypeInWarehouseId),
+						Amount: 1,
+					})
+				} else {
+					s.grpcWarehouseService.UpCount(context.Background(), &proto.UpCountWarehouseReq{
+						Id:     uint64(item.WarehouseId),
+						Amount: 1,
+					})
+				}
+			}
+		}(msg.Body)
+	}
+	return nil
+}
+
 func NewProductService() ProductService {
 	return &productService{
-		rabbitConnection: config.GetRabbitConnection(),
-		elasticClient:    config.GetElasticClient(),
+		rabbitConnection:           config.GetRabbitConnection(),
+		elasticClient:              config.GetElasticClient(),
+		grpcWarehouseService:       proto.NewWarehouseServiceClient(config.GetConnWarehouseGRPC()),
+		grpcTypeInWarehouseService: proto.NewTypeInWarehouseServiceClient(config.GetConnWarehouseGRPC()),
 	}
 }

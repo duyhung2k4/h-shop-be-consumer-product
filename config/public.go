@@ -35,3 +35,15 @@ func GetRabbitConnection() *amqp091.Connection {
 func GetElasticClient() *elasticsearch.TypedClient {
 	return elasticClient
 }
+
+func GetUserElasticSearch() string {
+	return userElasticSearch
+}
+
+func GetPasswordElasticSearch() string {
+	return passwordElasticSearch
+}
+
+func GetConnWarehouseGRPC() *grpc.ClientConn {
+	return clientWarehouse
+}

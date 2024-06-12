@@ -1,0 +1,119 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "gprc/proto";
+
+// Warehouse
+message InsertWarehouseReq {
+    string productId = 1;
+}
+message InsertWarehouseRes {
+    uint64 id = 1;
+    string productId = 2;
+    uint64 count = 3;
+}
+
+message UpdateWarehouseReq {
+    uint64 id = 1;
+    uint64 count = 2;
+}
+message UpdateWarehouseRes {
+    uint64 id = 1;
+    string productId = 2;
+    uint64 count = 3;
+}
+
+message UpCountWarehouseReq {
+    uint64 id = 1;
+    uint64 amount = 2;
+}
+message UpCountWarehouseRes {
+    uint64 id = 1;
+    string productId = 2;
+    uint64 count = 3;
+}
+
+message DownCountWarehouseReq {
+    uint64 id = 1;
+    uint64 amount = 2;
+}
+message DownCountWarehouseRes {
+    uint64 id = 1;
+    string productId = 2;
+    uint64 count = 3;
+}
+
+service WarehouseService {
+    rpc Insert(InsertWarehouseReq) returns (InsertWarehouseRes) {}
+    rpc Update(UpdateWarehouseReq) returns (UpdateWarehouseRes) {}
+    rpc UpCount(UpCountWarehouseReq) returns (UpCountWarehouseRes) {}
+    rpc DownCount(DownCountWarehouseReq) returns (DownCountWarehouseRes) {}
+}
+
+
+// Type Warehouse
+message InsertTypeInWarehouseReq {
+    string productId = 1;
+}
+message InsertTypeInWarehouseRes {
+    uint64 id = 1;
+    string productId = 2;
+    uint64 count = 3;
+}
+  
+message UpdateTypeInWarehouseReq {
+    uint64 id = 1;
+    uint64 count = 2;
+}
+message UpdateTypeInWarehouseRes {
+    uint64 id = 1;
+    string productId = 2;
+    uint64 count = 3;
+}
+  
+message UpCountTypeInWarehouseReq {
+    uint64 id = 1;
+    uint64 amount = 2;
+}
+message UpCountTypeInWarehouseRes {
+    uint64 id = 1;
+    string productId = 2;
+    uint64 count = 3;
+}
+  
+message DownCountTypeInWarehouseReq {
+    uint64 id = 1;
+    uint64 amount = 2;
+}
+message DownCountTypeInWarehouseRes {
+    uint64 id = 1;
+    string productId = 2;
+    uint64 count = 3;
+}
+
+service TypeInWarehouseService {
+    rpc Insert(InsertTypeInWarehouseReq) returns (InsertTypeInWarehouseRes) {}
+    rpc Update(UpdateTypeInWarehouseReq) returns (UpdateTypeInWarehouseRes) {}
+    rpc UpCount(UpCountTypeInWarehouseReq) returns (UpCountTypeInWarehouseRes) {}
+    rpc DownCount(DownCountTypeInWarehouseReq) returns (DownCountTypeInWarehouseRes) {}
+}
+
+message Order {
+    string productId = 1;
+    uint64 warehouseId = 2;
+    uint64 typeInWarehouseId = 3;
+    uint64 amount = 4;
+}
+message CountPriceOrderReq {
+    uint64 groupOrderId = 1;
+    repeated Order orders = 2;
+}
+message CountPriceOrderRes {
+    uint64 groupOrderId = 1;
+    float price = 2;
+}
+
+service CountPriceService {
+    rpc CountPriceOrder(CountPriceOrderReq) returns (CountPriceOrderRes) {}
+}

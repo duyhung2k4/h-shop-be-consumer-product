@@ -19,6 +19,8 @@ func loadEnv() error {
 	host = os.Getenv(HOST)
 	urlRabbitMq = os.Getenv(URL_RABBIT_MQ)
 	urlElastic = os.Getenv(URL_ELASTIC)
+	userElasticSearch = os.Getenv(USER_ELASTIC_SEARCH)
+	passwordElasticSearch = os.Getenv(PASSWORD_ELASTIC_SEARCH)
 
 	return nil
 }
